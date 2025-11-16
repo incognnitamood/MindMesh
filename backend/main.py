@@ -3,13 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes import router
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Try to check llm_client configuration at startup (lazy initialization)
 try:
     from llm_client import get_llm_client
-    # Just check if we can get the client (won't fail if API key is missing)
     client = get_llm_client()
     if client.api_key:
         logger.info("LLM client configured successfully")
@@ -20,15 +22,22 @@ except Exception as e:
     logger.warning("The server will start but API calls may fail")
 
 app = FastAPI(
-    title="Cognitive Map Generator API",
+    title="MindMesh API",
     description="API for generating structured cognitive maps",
     version="1.0.0"
 )
 
+# Update this with your deployed frontend URL
+FRONTEND_URLS = [
+    "http://localhost:5173",  # local dev Vite
+    "http://localhost:3000",  # local dev React
+    "https://your-frontend.vercel.app"  # deployed frontend URL
+]
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite default port
+    allow_origins=FRONTEND_URLS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,10 +49,9 @@ app.include_router(router)
 
 @app.get("/")
 async def root():
-    return {"message": "Cognitive Map Generator API", "status": "running"}
+    return {"message": "MindMesh API", "status": "running"}
 
 
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
-
