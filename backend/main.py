@@ -31,7 +31,7 @@ app = FastAPI(
 FRONTEND_URLS = [
     "http://localhost:5173",  # local dev Vite
     "http://localhost:3000",  # local dev React
-    "https://your-frontend.vercel.app"  # deployed frontend URL
+    "http://mindmesh-5.onrender.com/"  # deployed frontend URL
 ]
 
 # CORS middleware
