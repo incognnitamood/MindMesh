@@ -40,7 +40,9 @@ const Home = ({ darkMode }) => {
         id: node.id || `node_${index}`,
         type: node.type || 'sub',
         label: node.label || `Node ${index + 1}`,
-        description: node.description || `This ${node.type || 'sub'} represents: ${node.label || `Node ${index + 1}`}`,
+        description:
+          node.description ||
+          `This ${node.type || 'sub'} represents: ${node.label || `Node ${index + 1}`}`,
       }));
 
       data.reasoning_trail ||= 'This cognitive map explores the relationships and connections within the topic.';
@@ -60,9 +62,10 @@ const Home = ({ darkMode }) => {
   };
 
   const handleExportPNG = () => {
-    if (graphContainerRef.current) {
+    if (graphContainerRef.current && mapData) {
       const svg = graphContainerRef.current.querySelector('svg');
-      if (svg) exportAsPNG(svg, `cognitive-map-${mapData.topic.replace(/\s+/g, '-')}.png`);
+      if (svg)
+        exportAsPNG(svg, `cognitive-map-${mapData.topic?.replace(/\s+/g, '-') || 'map'}.png`);
     }
   };
 
@@ -79,7 +82,7 @@ const Home = ({ darkMode }) => {
             darkMode ? 'from-cyan-400 to-purple-400' : 'from-blue-600 to-purple-600'
           }`}
         >
-          MindMesh
+          Cognitive Map Generator
         </h2>
         <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
           Generate structured cognitive maps for any topic
@@ -101,7 +104,9 @@ const Home = ({ darkMode }) => {
               onKeyPress={(e) => e.key === 'Enter' && handleGenerate()}
               placeholder="Enter a topic (e.g., Neural Networks)"
               className={`flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300 ${
-                darkMode ? 'bg-gray-800/50 border-cyan-400 text-gray-100 placeholder-cyan-300' : 'bg-white/20 border-blue-500 text-gray-800 placeholder-blue-400'
+                darkMode
+                  ? 'bg-gray-800/50 border-cyan-400 text-gray-100 placeholder-cyan-300'
+                  : 'bg-white/20 border-blue-500 text-gray-800 placeholder-blue-400'
               }`}
               disabled={loading}
             />
@@ -193,11 +198,67 @@ const Home = ({ darkMode }) => {
                   darkMode ? 'bg-gray-900/50 border-gray-700' : 'bg-white/20 border-gray-200'
                 }`}
               >
-                <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Reasoning Trail</h3>
+                <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                  Reasoning Trail
+                </h3>
                 <p className={`${darkMode ? 'text-gray-300' : 'text-gray-700'} leading-relaxed`}>
                   {mapData.reasoning_trail}
                 </p>
               </div>
+            )}
+
+            {/* Node Info Sidebar */}
+            {showSidebar && selectedNode && (
+              <div
+                className={`fixed right-0 top-0 h-full w-96 backdrop-blur-xl shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-l ${
+                  darkMode ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'
+                }`}
+              >
+                <div className="p-6 border-b">
+                  <div className="flex justify-between items-center">
+                    <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                      {selectedNode.node.label}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setShowSidebar(false);
+                        setSelectedNode(null);
+                        setSelectedNodeId(null);
+                      }}
+                      className={`p-2 rounded-lg transition-all duration-300 ${
+                        darkMode
+                          ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <span
+                    className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${
+                      darkMode ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'
+                    }`}
+                  >
+                    {selectedNode.node.type}
+                  </span>
+                </div>
+                <div className={`p-6 overflow-y-auto h-[calc(100%-120px)] ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <p className="leading-relaxed">{selectedNode.node.description || 'No description available.'}</p>
+                </div>
+              </div>
+            )}
+
+            {showSidebar && (
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+                onClick={() => {
+                  setShowSidebar(false);
+                  setSelectedNode(null);
+                  setSelectedNodeId(null);
+                }}
+              />
             )}
           </div>
         )}
